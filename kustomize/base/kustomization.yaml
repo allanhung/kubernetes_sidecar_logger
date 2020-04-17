@@ -1,0 +1,10 @@
+commonLabels:
+  app: logsidecar
+
+resources:
+- pod.yaml
+
+configMapGenerator:
+- name: promtail-tmpl
+  files:
+    - promtail.yaml.tmpl

@@ -1,0 +1,22 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki.logging.svc:3100/loki/api/v1/push
+  
+scrape_configs:
+- job_name: system
+  entry_parser: raw
+  static_configs:
+  - targets:
+      - localhost
+    labels:
+      __path__: /ext/logs/*
+      pod_name: {{ .Env.MY_POD_NAME }}
+      {{- range (file.Read "/podinfo/labels" | strings.TrimSuffix "\n" | strings.Split "\n") }}
+      {{ ((index (.|strings.Split "=") 0) | strings.ReplaceAll "/" "_" | strings.ReplaceAll "." "_" | strings.ReplaceAll "-" "_")  }}: {{ (index (.|strings.Split "=") 1) }}
+      {{- end -}}
